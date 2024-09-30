@@ -147,6 +147,14 @@ export default function VideoScreen() {
     [player]
   );
 
+  const generateThumbnails = useCallback(async () => {
+    const start = performance.now();
+    const thumbnails = await player.generateThumbnailsAsync([-0.8, 1.3, 2.7]);
+    const end = performance.now();
+    console.log(end - start);
+    console.log(JSON.stringify(thumbnails, null, 2));
+  }, [player]);
+
   useEffect(() => {
     if (logEvents) {
       eventsToListen.forEach((eventName) => {
@@ -220,6 +228,7 @@ export default function VideoScreen() {
           title="Toggle picture in picture"
           onPress={togglePictureInPicture}
         />
+        <Button style={styles.button} title="Generate thumbnails" onPress={generateThumbnails} />
         <Text>Playback Volume: </Text>
         <Slider
           style={{ alignSelf: 'stretch' }}

@@ -7,6 +7,7 @@ import type {
   VideoPlayerStatus,
   VideoSource,
 } from './VideoPlayer.types';
+import { VideoThumbnail } from './VideoThumbnail';
 import resolveAssetSource from './resolveAssetSource';
 
 export function useVideoPlayer(
@@ -249,6 +250,10 @@ export default class VideoPlayerWeb
       video.play();
     });
     this.playing = true;
+  }
+
+  generateThumbnailsAsync(times: number | number[]): Promise<VideoThumbnail[]> {
+    throw new Error('Generating video thumbnails is not supported on Web yet');
   }
 
   _synchronizeWithFirstVideo(video: HTMLVideoElement): void {

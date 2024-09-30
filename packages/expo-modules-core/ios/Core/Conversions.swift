@@ -171,9 +171,12 @@ public struct Conversions {
         let object = try? value.build(appContext: appContext)
         return object as Any
       }
+      guard let dynamicType = asDynamicSharedObjectType(dynamicType) else {
+        return value as Any
+      }
 
       // If the returned value is a native shared object, create its JS representation and add the pair to the registry of shared objects.
-      if let value = value as? SharedObject, let dynamicType = asDynamicSharedObjectType(dynamicType) {
+      if let value = value as? SharedObject {
         // If the JS object already exists, just return it.
         if let object = value.getJavaScriptObject() {
           return object
@@ -184,6 +187,9 @@ public struct Conversions {
         }
         appContext.sharedObjectRegistry.add(native: value, javaScript: object)
         return object
+      }
+      if let value = value as? [SharedObject] {
+        return value.map { convertFunctionResult($0, appContext: appContext, dynamicType: dynamicType) }
       }
     }
     return value as Any
@@ -300,11 +306,14 @@ public struct Conversions {
 }
 
 /**
- Unwraps the dynamic optional type and returns as a dynamic shared object type if possible.
+ Unwraps the dynamic optional and array types and returns as a dynamic shared object type if possible.
  */
 private func asDynamicSharedObjectType(_ dynamicType: AnyDynamicType?) -> DynamicSharedObjectType? {
   if let dynamicType = dynamicType as? DynamicOptionalType {
     return dynamicType.wrappedType as? DynamicSharedObjectType
+  }
+  if let dynamicType = dynamicType as? DynamicArrayType {
+    return dynamicType.elementType as? DynamicSharedObjectType
   }
   return dynamicType as? DynamicSharedObjectType
 }
